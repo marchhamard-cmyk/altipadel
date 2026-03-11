@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Altipadel – Aperçu Mobile</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    background: #0d0d0d;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    min-height: 100vh;
+    font-family: -apple-system, sans-serif;
+    padding: 24px 16px 40px;
+  }
+
+  .studio-bar {
+    width: 100%;
+    max-width: 500px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 20px;
+    padding: 0 4px;
+  }
+
+  .studio-label {
+    color: #666;
+    font-size: 11px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+  }
+
+  .device-switcher {
+    display: flex;
+    gap: 8px;
+  }
+
+  .dev-btn {
+    background: #1a1a1a;
+    border: 1px solid #333;
+    color: #888;
+    font-size: 10px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    padding: 5px 12px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .dev-btn:hover, .dev-btn.active {
+    background: #2a2a2a;
+    border-color: #555;
+    color: #fff;
+  }
+
+  /* Phone frame */
+  .phone-wrap {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .phone-frame {
+    background: #1a1a1a;
+    border-radius: 44px;
+    padding: 14px 10px;
+    box-shadow:
+      0 0 0 1px #2a2a2a,
+      0 0 0 3px #111,
+      0 30px 80px rgba(0,0,0,0.8),
+      0 0 120px rgba(0,100,255,0.03);
+    position: relative;
+    transition: all 0.4s ease;
+  }
+
+  /* Notch */
+  .phone-frame::before {
+    content: '';
+    position: absolute;
+    top: 14px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 90px;
+    height: 28px;
+    background: #111;
+    border-radius: 0 0 16px 16px;
+    z-index: 10;
+  }
+
+  /* Side buttons */
+  .phone-frame::after {
+    content: '';
+    position: absolute;
+    right: -3px;
+    top: 100px;
+    width: 3px;
+    height: 50px;
+    background: #222;
+    border-radius: 0 2px 2px 0;
+    box-shadow: 0 70px 0 #222;
+  }
+
+  .phone-screen {
+    width: 375px;
+    height: 720px;
+    border-radius: 34px;
+    overflow: hidden;
+    background: #0B1C2E;
+    position: relative;
+  }
+
+  .phone-screen iframe {
+    width: 375px;
+    height: 812px; /* full page height, scrollable */
+    border: none;
+    border-radius: 0;
+    transform-origin: top left;
+    display: block;
+  }
+
+  /* Scroll mask */
+  .scroll-hint {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 60px;
+    background: linear-gradient(transparent, rgba(0,0,0,0.6));
+    border-radius: 0 0 34px 34px;
+    pointer-events: none;
+  }
+
+  /* Home indicator */
+  .home-indicator {
+    width: 120px;
+    height: 4px;
+    background: rgba(255,255,255,0.25);
+    border-radius: 2px;
+    margin-top: 10px;
+  }
+
+  /* Status bar overlay */
+  .status-bar {
+    position: absolute;
+    top: 14px;
+    left: 10px;
+    right: 10px;
+    height: 44px;
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    padding: 0 20px 6px;
+    z-index: 5;
+    pointer-events: none;
+    border-radius: 34px 34px 0 0;
+  }
+
+  .status-time {
+    font-size: 13px;
+    font-weight: 600;
+    color: white;
+    letter-spacing: 0.3px;
+  }
+
+  .status-icons {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .status-icons svg {
+    fill: white;
+    opacity: 0.9;
+  }
+
+  .info-panel {
+    margin-top: 28px;
+    width: 395px;
+    background: #141414;
+    border: 1px solid #222;
+    border-radius: 12px;
+    padding: 16px 20px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+
+  .info-item {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  .info-key {
+    color: #555;
+    font-size: 10px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+  }
+
+  .info-val {
+    color: #aaa;
+    font-size: 12px;
+  }
+
+  .info-divider {
+    width: 1px;
+    background: #222;
+    align-self: stretch;
+  }
+
+  /* Tablet mode */
+  .phone-frame.tablet-mode .phone-screen {
+    width: 768px;
+    height: 600px;
+    border-radius: 16px;
+  }
+  .phone-frame.tablet-mode .phone-screen iframe {
+    width: 768px;
+    height: 1100px;
+  }
+  .phone-frame.tablet-mode {
+    border-radius: 20px;
+    padding: 10px;
+  }
+  .phone-frame.tablet-mode::before {
+    display: none;
+  }
+  .phone-frame.tablet-mode .info-panel {
+    width: 788px;
+  }
+
+  /* Small phone */
+  .phone-frame.small-mode .phone-screen {
+    width: 320px;
+    height: 650px;
+  }
+  .phone-frame.small-mode .phone-screen iframe {
+    width: 320px;
+    height: 812px;
+  }
+</style>
+</head>
+<body>
+
+<div class="studio-bar">
+  <span class="studio-label">Aperçu Mobile</span>
+  <div class="device-switcher">
+    <button class="dev-btn" onclick="setDevice('small')">320px</button>
+    <button class="dev-btn active" onclick="setDevice('normal')">375px</button>
+    <button class="dev-btn" onclick="setDevice('tablet')">768px</button>
+  </div>
+</div>
+
+<div class="phone-wrap">
+  <div class="phone-frame" id="frame">
+
+    <div class="status-bar">
+      <span class="status-time" id="clock">9:41</span>
+      <div class="status-icons">
+        <!-- Signal -->
+        <svg width="17" height="12" viewBox="0 0 17 12">
+          <rect x="0" y="8" width="3" height="4" rx="0.5"/>
+          <rect x="4.5" y="5.5" width="3" height="6.5" rx="0.5"/>
+          <rect x="9" y="2.5" width="3" height="9.5" rx="0.5"/>
+          <rect x="13.5" y="0" width="3" height="12" rx="0.5"/>
+        </svg>
+        <!-- Wifi -->
+        <svg width="16" height="12" viewBox="0 0 24 18">
+          <path d="M12 14a2 2 0 1 1 0 4 2 2 0 0 1 0-4zm0-4c2.2 0 4.2.9 5.6 2.4l-2.1 2.1A5.01 5.01 0 0 0 12 13a5.01 5.01 0 0 0-3.5 1.5L6.4 12.4C7.8 10.9 9.8 10 12 10zm0-4c3.3 0 6.3 1.3 8.5 3.5l-2.1 2.1A9.9 9.9 0 0 0 12 9a9.9 9.9 0 0 0-6.4 2.6L3.5 9.5C5.7 7.3 8.7 6 12 6zm0-4C16.4 2 20.4 3.8 23.3 6.7l-2.1 2.1C19 6.6 15.7 5 12 5S5 6.6 2.8 8.8L.7 6.7C3.6 3.8 7.6 2 12 2z"/>
+        </svg>
+        <!-- Battery -->
+        <svg width="25" height="12" viewBox="0 0 25 12">
+          <rect x="0" y="1" width="21" height="10" rx="2" stroke="white" stroke-width="1.2" fill="none"/>
+          <rect x="1.5" y="2.5" width="16" height="7" rx="1" fill="white"/>
+          <path d="M22.5 4v4a2 2 0 0 0 0-4z" fill="white" opacity="0.5"/>
+        </svg>
+      </div>
+    </div>
+
+    <div class="phone-screen">
+      <iframe id="preview-frame" src="index.html" scrolling="yes"></iframe>
+      <div class="scroll-hint"></div>
+    </div>
+
+  </div>
+  <div class="home-indicator"></div>
+
+  <div class="info-panel" id="info-panel">
+    <div class="info-item">
+      <span class="info-key">Viewport</span>
+      <span class="info-val" id="info-vp">375 × 812</span>
+    </div>
+    <div class="info-divider"></div>
+    <div class="info-item">
+      <span class="info-key">Appareil</span>
+      <span class="info-val" id="info-dev">iPhone 14 / 15</span>
+    </div>
+    <div class="info-divider"></div>
+    <div class="info-item">
+      <span class="info-key">Fichier</span>
+      <span class="info-val">index.html (corrigé)</span>
+    </div>
+  </div>
+</div>
+
+<script>
+  // Live clock
+  function updateClock() {
+    const now = new Date();
+    document.getElementById('clock').textContent =
+      now.getHours() + ':' + String(now.getMinutes()).padStart(2,'0');
+  }
+  updateClock();
+  setInterval(updateClock, 10000);
+
+  // Device switcher
+  function setDevice(mode) {
+    const frame = document.getElementById('frame');
+    const iframe = document.getElementById('preview-frame');
+    const infovp = document.getElementById('info-vp');
+    const infodev = document.getElementById('info-dev');
+    const panel = document.getElementById('info-panel');
+
+    document.querySelectorAll('.dev-btn').forEach(b => b.classList.remove('active'));
+    event.target.classList.add('active');
+
+    frame.classList.remove('tablet-mode', 'small-mode');
+
+    if (mode === 'tablet') {
+      frame.classList.add('tablet-mode');
+      iframe.style.width = '768px';
+      panel.style.width = '788px';
+      infovp.textContent = '768 × 1024';
+      infodev.textContent = 'iPad Mini / Air';
+    } else if (mode === 'small') {
+      frame.classList.add('small-mode');
+      iframe.style.width = '320px';
+      panel.style.width = '340px';
+      infovp.textContent = '320 × 568';
+      infodev.textContent = 'iPhone SE / 5';
+    } else {
+      iframe.style.width = '375px';
+      panel.style.width = '395px';
+      infovp.textContent = '375 × 812';
+      infodev.textContent = 'iPhone 14 / 15';
+    }
+  }
+</script>
+</body>
+</html>
